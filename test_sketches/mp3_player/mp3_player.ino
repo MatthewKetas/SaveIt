@@ -1,6 +1,7 @@
 /*
 * MP3 Player code for the DFPlayer Mini
-* Authored By: Matthew Ketas and Utsource in Circuits (https://www.instructables.com/MP3-Player-With-Arduino-Using-DF-Player-Mini/)
+* Authored By: Utsource in Circuits (https://www.instructables.com/MP3-Player-With-Arduino-Using-DF-Player-Mini/)
+* Edited By: Matthew Ketas
 * Last Edited: 3/19/2026
 */
 
