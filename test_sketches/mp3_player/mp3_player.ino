@@ -1,34 +1,44 @@
-#include "SoftwareSerial.h"
+/*
+  DFPlayer Mini — Continuous Playback on ATmega1284
 
-// RX, TX - adjust these pins for your ATmega wiring
-SoftwareSerial mySerial(10, 11);
+  ---- Pin Mapping ----
+  Physical Pin 16 (PD2) = RX1 -> DFPlayer TX
+  Physical Pin 17 (PD3) = TX1 -> DFPlayer RX (use 1K resistor in series!)
+  
+  Uses hardware UART1 (Serial1) — no SoftwareSerial needed.
 
-#define Start_Byte  0x7E
-#define Version_Byte 0xFF
+  NOTE: UART0 (Serial, pins 14/15) is free for Bluetooth or debug.
+        If you need debug AND Bluetooth, you'll need SoftwareSerial
+        on different pins for one of the three devices.
+  -------------------------
+*/
+
+#define Start_Byte    0x7E
+#define Version_Byte  0xFF
 #define Command_Length 0x06
-#define End_Byte    0xEF
-#define Acknowledge 0x00
+#define End_Byte      0xEF
+#define Acknowledge   0x00
 
 void setup() {
-  mySerial.begin(9600);
-  delay(1000);          // Give the DFPlayer time to boot
+  Serial1.begin(9600);    // UART1 (physical pins 16/17) -> DFPlayer
+  delay(1000);            // Give the DFPlayer time to boot
 
   execute_CMD(0x3F, 0, 0); // Send reset / init
   delay(500);
 
-  setVolume(20);           // Volume 0-30
+  setVolume(20);            // Volume 0-30
   delay(500);
 
-  execute_CMD(0x11, 0, 1); // Start playing track 1
+  execute_CMD(0x11, 0, 1);  // Start playing track 1
   delay(500);
 }
 
 void loop() {
   // Listen for messages from DFPlayer
-  if (mySerial.available() >= 10) {
+  if (Serial1.available() >= 10) {
     byte response[10];
     for (int i = 0; i < 10; i++) {
-      response[i] = mySerial.read();
+      response[i] = Serial1.read();
     }
 
     // 0x3D = track finished (SD card source)
@@ -57,6 +67,6 @@ void execute_CMD(byte CMD, byte Par1, byte Par2) {
   };
 
   for (byte k = 0; k < 10; k++) {
-    mySerial.write(Command_line[k]);
+    Serial1.write(Command_line[k]);
   }
 }
