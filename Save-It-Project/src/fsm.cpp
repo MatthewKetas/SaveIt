@@ -1,5 +1,4 @@
 //fsm.cpp
-
 #include "fsm.h"
 //#include "states.h"  // forward declares the six state functions
 
