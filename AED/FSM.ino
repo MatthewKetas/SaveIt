@@ -8,7 +8,7 @@ AED Control Loop for ESP32
 #define STARTDELAY 0;
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
-// States, Events, and Transition Table: for traversing the states of the FSM using the current state and the event that is triggered
+// Transition Table: for traversing the states of the FSM using the current state and the event that is triggered
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 
 typedef enum { //STATES
