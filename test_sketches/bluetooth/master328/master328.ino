@@ -1,17 +1,14 @@
-/*   
+/*
   ===== MASTER / SENDER — ATmega328 =====
-  HC-05 Bluetooth module configured as MASTER.
-  Sends a test byte (toggles 1 and 0) to the slave every 2 seconds.
-
-  modified on 10 Feb 2019 
-  by Saeed Hosseini 
-  https://electropeak.com/learn/ 
+  Reads thermistor voltage on A5 (physical pin 28)
+  and sends the voltage as a string to the ESP32 via HC-05.
 
   Edited for ECE 1885 by: Matthew Ketas
   Last Edited: 3/26/2026
   LLMs Used: Claude Sonnet 4.6 Extended
 
   ---- ATmega328 Pin Mapping ----
+  Arduino Pin A5 (PC5, physical pin 28) -> Thermistor (ADC input)
   Arduino Pin 2  (PD2) -> HC-05 TX  (receive from BT)
   Arduino Pin 3  (PD3) -> HC-05 RX  (send to BT, use voltage divider!)
   Arduino Pin 8  (PB0) -> LED + resistor -> GND  (status indicator)
@@ -21,38 +18,54 @@
 
 #include <SoftwareSerial.h>
 
-// SoftwareSerial: RX on pin 2, TX on pin 3
-SoftwareSerial BTSerial(2, 3);
+SoftwareSerial BTSerial(2, 3); // RX, TX
 
-int LED = 8;
-int sendValue = 1; // Toggles between 1 and 0
+int ledPin = 8;
+int thermPin = A5; // Physical pin 28 = PC5 = A5
 
 void setup() {
-  Serial.begin(9600);       // Debug over USB/FTDI
-  BTSerial.begin(9600);     // HC-05 default baud
-  pinMode(LED, OUTPUT);
+  Serial.begin(9600);
+  BTSerial.begin(9600);
+  pinMode(ledPin, OUTPUT);
 
+  // Code compliation test
+  for(int i = 0; i < 3; i++){
+    digitalWrite(ledPin, HIGH);
+    delay(1000);
+    digitalWrite(ledPin, LOW);
+    delay(1000);
+  }
+  
   Serial.println("=== MASTER (ATmega328) ===");
-  Serial.println("Ready to connect");
-  Serial.println("Default password is 1234 or 0000");
+  Serial.println("Reading thermistor on A5, sending via BT");
   delay(1000);
 }
 
 void loop() {
-  // Send the current value to the slave
-  BTSerial.write(sendValue);
+  // Read ADC (0-1023) and convert to voltage (5V reference)
+  int rawADC = analogRead(thermPin);
+  float voltage = (rawADC / 1023.0) * 5.0;
 
-  // Mirror on the local LED so you can see what's being sent
-  if (sendValue == 1) {
-    digitalWrite(LED, HIGH);
-    Serial.println("Sent: 1  (LED ON command)");
-  } else {
-    digitalWrite(LED, LOW);
-    Serial.println("Sent: 0  (LED OFF command)");
+  if(voltage < 0.5){
+    digitalWrite(ledPin, HIGH);
   }
 
-  // Toggle for next cycle
-  sendValue = (sendValue == 1) ? 0 : 1;
+  // Send voltage as a string with newline delimiter
+  BTSerial.println(voltage, 2); // 2 decimal places, e.g. "3.24\n"
 
-  delay(2000); // Send every 2 seconds
+  // Local debug
+  Serial.print("ADC: ");
+  Serial.print(rawADC);
+  Serial.print("  Voltage: ");
+  Serial.print(voltage, 2);
+  Serial.println("V");
+
+  // Local LED mirrors threshold for quick visual check
+  if (voltage > 2.5) {
+    digitalWrite(ledPin, HIGH);
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
+
+  delay(500); // Send twice per second
 }
