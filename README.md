@@ -15,7 +15,7 @@ The code for the SaveIt! project in ECE 1885.
 
 # ATmega329P-U Pinout:
 ## Pins
-![Pinout](ESP32_Pinout.png)
+![Pinout](ATmega328_Pinout.png)
 ## Important Notes:
 1. There must be a 10k pull-up resistor on pin 1.
 2. There must be a 10k pull-down resistor on pin 28.
