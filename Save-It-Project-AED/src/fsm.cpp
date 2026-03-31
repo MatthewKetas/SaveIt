@@ -14,18 +14,16 @@ static struct { //saves static fsm struct for FSM variables (current state, scor
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Transition Table: for traversing the states of the FSM using the current state and the event that is triggered
 
-// if (fsm.current == ST_START)     fsm_dispatch(EV_START_BTN);
-// if (fsm.current == ST_GAME_OVER) fsm_dispatch(EV_RESTART);
 static const State transTable[ST_NULL][EV_NULL] = { //use nulls to define the size due to zero indexing of the enums
-    //                              SYNC_OK   START_BTN   PROMPT_DEFIB    PROMPT_BREATHE    PROMPT_PUMP   FAIL    RESTART 
-    /* ST_SYNC                  */ {ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-    /* ST_START                 */ {ST_NULL, ST_NULL ,ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-    /* ST_DEFIB_IT              */ {ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-    /* ST_BREATHE_IT            */ {ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-    /* ST_PUMP_IT               */ {ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-    /* ST_GAME_OVER             */ {ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL, ST_NULL},
-};
-
+    //                      EV_SYNC   EV_SYNC_OK   EV_START_BTN   EV_PROMPT_DEFIB   EV_PROMPT_BLOW   EV_PROMPT_PUMP   EV_FAIL
+    /* ST_SYNC      */      {ST_SYNC,  ST_START,    ST_NULL,       ST_NULL,          ST_NULL,         ST_NULL,         ST_NULL     },
+    /* ST_START     */      {ST_SYNC,  ST_NULL,     ST_NULL,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_NULL     },
+    /* ST_DEFIB_IT  */      {ST_SYNC,  ST_NULL,     ST_START,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_BLOW_IT   */      {ST_SYNC,  ST_NULL,     ST_START,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_PUMP_IT   */      {ST_SYNC,  ST_NULL,     ST_START,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_GAME_OVER */      {ST_SYNC,  ST_NULL,     ST_START,      ST_NULL,          ST_NULL,         ST_NULL,         ST_NULL     },
+};  
+//press the start button mid game it restarts the game 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // State Function Pointer Array
