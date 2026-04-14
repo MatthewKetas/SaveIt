@@ -1,4 +1,5 @@
 // bluetooth.cpp
+#include <Arduino.h>
 #include "bluetooth.h"
 #include "gpio.h"
 
@@ -24,7 +25,9 @@ bool bt_receive(SensorData* data) { // read and parse incoming sensor data, retu
     // wait for remaining 3 bytes
     if (BT_SERIAL.available() < 3) return false; // wait for force byte and two thermistor bytes
 
-    //TODO: Review this is all needed and corect inputs for bluetooth AED reciver
+    //TODO: Review this is all needed and corect inputs for bluetooth AED reciver, also consider if we want to do any error checking or validation on the data received from the dummy, such as checking for out of range values or invalid sensor readings, and how to handle such cases in the FSM and game logic
+    data->forceDetected = BT_SERIAL.read(); // read force sensor byte, 0 or 1
+    uint8_t thermHigh   = BT_SERIAL.read(); // read thermistor high byte
     uint8_t thermLow    = BT_SERIAL.read(); // read thermistor low byte
 
     // wait for end byte
