@@ -2,6 +2,8 @@
 
 #pragma once
 
+
+//TODO: define the actual GPIO pins for bluetooth (AED)
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Bluetooth Pins
 #define BT_STATE_PIN    XX      // HC-05 STATE pin — high when connected, move to gpio.h
