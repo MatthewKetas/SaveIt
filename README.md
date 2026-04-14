@@ -23,3 +23,7 @@ The code for the SaveIt! project in ECE 1885.
 4. The crystal must be regulated with 2 22pf capacitors on pins 9 and 10.
 5. STATE of the HC-05 should be connected to physical pin 6.
 6. EN/KEY should be connected to physical pin 11.
+
+# Instruction Flashing Commands
+1.     avrdude -v -c usbtiny -p m328p -P usb -B 50 # This command establishes a connection between the atmega328p and the AVR programmer
+2.      avrdude -c usbtiny -p m328p -P usb -B 50 -e \ -U flash:w:lcd.ino.with_bootloader.hex:i # This command flashes to the AVR programmer once the binary library has been compiled into the sketch folder in the arduino IDE
