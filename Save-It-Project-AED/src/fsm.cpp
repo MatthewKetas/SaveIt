@@ -1,4 +1,5 @@
 //fsm.cpp
+#include <Arduino.h>
 #include "fsm.h"
 #include "states.h"  // forward declares the six state functions
 #include "bluetooth.h"  // needed for bt_connected() check

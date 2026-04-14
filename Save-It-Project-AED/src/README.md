@@ -8,3 +8,8 @@ The code for the SaveIt! project in ECE 1885.
 
 # File Structure
 
+
+# TODO: Files still
+- LCD .h and .cpp
+- finish GPIO
+- audio .h and .cpp
