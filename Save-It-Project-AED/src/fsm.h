@@ -2,6 +2,14 @@
 #pragma once  // ensures that the header file is only included once in the compilation process, preventing redefinition errors
 #include <Arduino.h>
 
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------
+//Timing constants
+#define MAX_PROMPT_TIMEOUT_MS 10000 // max time limit for user to complete the prompted challenge, in milliseconds, used for timing out and transitioning to game over state if the user does not complete the challenge in time
+#define MIN_PROMPT_TIMEOUT_MS 1500 // minimum time for the user to complete the prompted challenge, in milliseconds, used for ensuring the user has enough time to complete the challenge before timing out and transitioning to game over state
+#define SCORE_DIFFICULTY_STEP   100     // ms reduced per point scored
+
+
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // States and Events: shared types used across all files
 
@@ -29,8 +37,8 @@ typedef enum { // EVENTS, caused by action or inaction of user or by the system,
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // FSM Public Interface: functions exposed to other files
 
-void fsm_init();
+void fsm_init(); // initializes the FSM, setting the current state to ST_SYNC and score to 0, called once at the start of the program
 
-void fsm_dispatch(Event ev);
+void fsm_dispatch(Event ev); // takes in current event and state and references the transition table to determine the next state
 
-//void fsm_tick();
+void fsm_tick();
