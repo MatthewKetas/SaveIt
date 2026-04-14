@@ -1,20 +1,18 @@
 #include <Arduino.h>
+#include "fsm.h"
 
-// put function declarations here:
-int myFunction(int, int);
+#include "bluetooth.h"
+#include "lcd.h"
+#include "audio.h"
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  // Serial.begin(115200);  //for debug prints during development
+  fsm_init();
+  bt_init();
+  lcd_init();
+  audio_init();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //Event ev = stateFunctions[fsm.current](); // calls the function of fsm.current and saves the enumerated next event returned by that function in ev
-  //if (ev != EV_NULL) fsm_dispatch(ev);  // if the event returned by the state function is not null, dispatch the event to determine the next state
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  fsm_tick(); // handles BT check, timeout, state polling, LCD all inside
 }
