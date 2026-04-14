@@ -5,11 +5,6 @@
 // Bluetooth Configuration
 #define BT_BAUD         9600    // HC-05 default baud rate
 #define BT_SERIAL       Serial2 // UART2 on ESP32
-#define BT_STATE_PIN    XX      // HC-05 STATE pin — high when connected, move to gpio.h
-#define RX_PIN          XX      // ESP32 UART RX pin connected to HC-05 TX, move to gpio.h
-#define TX_PIN          XX      // ESP32 UART TX pin connected to HC-05 RX,
-#define EN_PIN          XX      // HC-05 enable pin for resetting module, move to gpio.h
-//#define BT_Name         "SaveItAED" // Bluetooth device name, changeable when configuring HC-05 with AT commands
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Sensor Data: received from dummy over BT
