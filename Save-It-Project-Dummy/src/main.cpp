@@ -1,18 +1,13 @@
 #include <Arduino.h>
-
-// put function declarations here:
-int myFunction(int, int);
+#include "bluetooth.h"
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  bt_init();  // initialize Bluetooth
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    bool     force = digitalRead(PIN_FORCE_SENSOR);
+    uint16_t therm = analogRead(PIN_THERMISTOR);
+    bt_sendSensorData(force, therm);
+    delay(50);  // send every 50ms
 }

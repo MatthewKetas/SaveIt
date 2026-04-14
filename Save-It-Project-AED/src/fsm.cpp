@@ -73,12 +73,20 @@ uint32_t getPromptTimeout() {
 
 // checks the timer every tick
 void fsm_tick() {
-    if (!bt_connected()) {  // check BT every tick before anything else
-        fsm_dispatch(EV_SYNC);
-        return;
+    uint32_t now = millis();
+    // check BT connection status every 100ms, not every tick
+    static uint32_t lastBtCheckMs = 0;
+    if (now - lastBtCheckMs >= 100) {
+        lastBtCheckMs = now;
+        if (!bt_connected()) {
+            fsm_dispatch(EV_SYNC);
+            println("BT Disconnected");
+            return;
+        }
     }
+
     if (fsm.current == ST_DEFIB_IT || fsm.current == ST_BLOW_IT || fsm.current == ST_PUMP_IT) {
-        if (millis() - fsm.promptStartMs >= getPromptTimeout()) {
+        if (now - fsm.promptStartMs >= getPromptTimeout()) {
             fsm_dispatch(EV_FAIL);  // timer expired -> game over (user failed to complete the challenge in time)
             return;
         }
