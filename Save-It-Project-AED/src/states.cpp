@@ -8,11 +8,25 @@
 #include "audio.h"
 
 Event syncState(){
-    // Check if bluetooth and peripherals are connected and leads are on dummy, if not dispatch EV_SYNC to stay in this state, if so dispatch EV_SYNC_OK to transition to start state
-    //display "Syncing..." on LCD screen
-    // TODO: display "Connecting..." on LCD
-    // TODO: check BT connected and peripherals ok
-    // if (bt_connected() && peripheralsOk()) return EV_SYNC_OK;
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showSyncScreen();
+        screenDrawn = true;
+    }
+    // check BT connection and reed switches every tick
+    bool btOk   = bt_connected();
+    bool padsOk = (digitalRead(PIN_PAD_LEFT)  == LOW) && (digitalRead(PIN_PAD_RIGHT) == LOW);
+
+    if (btOk && padsOk) {
+        screenDrawn = false;  // reset for next time we enter sync
+        return EV_SYNC_OK;
+    }
+
+    // show which condition is failing
+    if (!btOk)   lcd_printCentered("No BT connection", 1, COLOR_FAIL, 45);  // update status
+    if (!padsOk) lcd_printCentered("Place pads on dummy", 1, COLOR_FAIL, 60);
+
+    lcd_updateEKG();
     return EV_NULL;
 }
 Event startState(){
