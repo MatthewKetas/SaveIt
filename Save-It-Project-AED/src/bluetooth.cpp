@@ -6,7 +6,7 @@
 void bt_init() {
     pinMode(BT_STATE_PIN, INPUT); // STATE pin for connection status
     BT_SERIAL.begin(BT_BAUD, SERIAL_8N1, BT_RX_PIN, BT_TX_PIN); // initialize UART with specified RX and TX pins
-    pinMode(EN_PIN, OUTPUT); // EN pin for resetting HC-05
+    pinMode(BT_EN_PIN, OUTPUT); // EN pin for resetting HC-05
 }
 
 bool bt_connected() {
