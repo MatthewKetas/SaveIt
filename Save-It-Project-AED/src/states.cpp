@@ -1,4 +1,5 @@
 // States.cpp
+#include <Arduino.h>
 #include "states.h"
 #include "fsm.h"
 #include "gpio.h"
