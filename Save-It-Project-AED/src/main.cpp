@@ -7,6 +7,17 @@
 
 void setup() {
   // Serial.begin(115200);  //for debug prints during development
+
+  // input pin modes with internal pull-ups
+  pinMode(PIN_START_BTN,  INPUT_PULLUP);
+  pinMode(PIN_PAD_LEFT,   INPUT_PULLUP);
+  pinMode(PIN_PAD_RIGHT,  INPUT_PULLUP);
+  pinMode(PIN_CHARGE_BTN, INPUT_PULLUP);
+  pinMode(PIN_SHOCK_BTN,  INPUT_PULLUP);
+  pinMode(AUDIO_BUSY_PIN, INPUT);
+  pinMode(BT_STATE_PIN,   INPUT);
+
+  //peripheral initializations
   fsm_init();
   bt_init();
   lcd_init();
