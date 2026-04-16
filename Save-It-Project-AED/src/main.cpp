@@ -1,12 +1,13 @@
 #include <Arduino.h>
 #include "fsm.h"
 
+#include "gpio.h"
 #include "bluetooth.h"
 #include "lcd.h"
 #include "audio.h"
 
 void setup() {
-  // Serial.begin(115200);  //for debug prints during development
+  Serial.begin(115200);  //for debug prints during development
 
   // input pin modes with internal pull-ups
   pinMode(PIN_START_BTN,  INPUT_PULLUP);
@@ -18,10 +19,10 @@ void setup() {
   pinMode(BT_STATE_PIN,   INPUT);
 
   //peripheral initializations
-  fsm_init();
   bt_init();
   lcd_init();
   audio_init();
+  fsm_init();
 }
 
 void loop() {

@@ -13,4 +13,4 @@ Event gameOverState();
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Challenge Picker: randomly selects next challenge and dispatches EV_PROMPT_*
-void pickNextChallenge();
+Event pickNextChallenge();

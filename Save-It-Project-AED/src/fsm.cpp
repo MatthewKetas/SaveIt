@@ -72,6 +72,11 @@ uint32_t getPromptTimeout() {
     return max(MIN_PROMPT_TIMEOUT_MS, MAX_PROMPT_TIMEOUT_MS - (fsm.score * SCORE_DIFFICULTY_STEP)); //reduces the prompt timeout, either to the minimum timeout or based on the score difficulty step, whichever is greater
 }
 
+// score getter and setter
+uint8_t fsm_getScore()  { return fsm.score; }
+
+void    fsm_addScore()  { fsm.score++; }
+
 // checks the timer every tick
 void fsm_tick() {
     uint32_t now = millis();
@@ -81,7 +86,7 @@ void fsm_tick() {
         lastBtCheckMs = now;
         if (!bt_connected()) {
             fsm_dispatch(EV_SYNC);
-            println("BT Disconnected");
+            Serial.println("BT Disconnected");
             return;
         }
     }
