@@ -11,7 +11,6 @@ static int16_t  ekgBuf[SCREEN_W];          // y-value for each column
 static EKGState ekgState    = EKG_IDLE;    // current EKG behavior
 static uint16_t ekgColor    = EKG_COLOR_IDLE;
 static int16_t  ekgPhase    = 0;           // phase counter for waveform generation
-static bool     spikeActive = false;       // true during a success spike
 static int8_t   spikeSample = 0;           // which sample of the spike we're on
 
 // spike shape - has offset values to simulate a sort of heart rhythm
@@ -184,4 +183,10 @@ void lcd_showGameOverScreen(uint8_t score) {
     lcd_printCentered(scoreStr, 2, COLOR_TEXT, 50);
     lcd_printCentered("Press Start to play again", 1, COLOR_TEXT, 70);
     lcd_setEKGState(EKG_FAIL);
+}
+
+void lcd_showSyncStatus(bool btOk, bool padsOk) {
+    tft.fillRect(0, 40, SCREEN_W, 40, COLOR_BG);  // clear status area only
+    if (!btOk)   lcd_printCentered("No BT connection",    1, COLOR_FAIL, 45);
+    if (!padsOk) lcd_printCentered("Place pads on dummy", 1, COLOR_FAIL, 60);
 }

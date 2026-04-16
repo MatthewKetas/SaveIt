@@ -22,9 +22,8 @@ Event syncState(){
         return EV_SYNC_OK;
     }
 
-    // show which condition is failing
-    if (!btOk)   lcd_printCentered("No BT connection", 1, COLOR_FAIL, 45);  // update status
-    if (!padsOk) lcd_printCentered("Place pads on dummy", 1, COLOR_FAIL, 60);
+    // show which condition is failing on the screen
+    lcd_showSyncStatus(btOk, padsOk);
 
     lcd_updateEKG();
     return EV_NULL;
@@ -37,6 +36,21 @@ Event startState(){
     // if (digitalRead(PIN_START_BTN) == LOW) {
     //     pickNextChallenge();
     // }
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showStartScreen();
+        audio_play(TRACK_START);
+        screenDrawn = true;   // ← set true after drawing
+    }
+
+    // poll start button
+    if (digitalRead(PIN_START_BTN) == LOW) { // on press, transition to next state  
+        screenDrawn = false;  // reset for next entry
+        return pickNextChallenge();  // dispatches random EV_PROMPT_*
+    }
+
+    lcd_updateEKG();
+    return EV_NULL;
 }
 Event defibState(){
     // TODO: display "SHOCK IT!" on LCD
@@ -44,14 +58,48 @@ Event defibState(){
     // if (shockDetected()) {
     //     pickNextChallenge();
     // }
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showDefibScreen(fsm_getScore());  // show prompt and score
+        audio_play(TRACK_DEFIB);         // play "SHOCK IT!" audio
+        screenDrawn = true;
+    }
+
+    // poll charge and shock buttons — must press charge first then shock
+    if (digitalRead(PIN_CHARGE_BTN) == LOW &&
+        digitalRead(PIN_SHOCK_BTN)  == LOW) {
+        screenDrawn = false;
+        lcd_setEKGState(EKG_SUCCESS);    // spike on success
+        audio_play(TRACK_SUCCESS);
+        return pickNextChallenge();
+    }
+
+    lcd_updateEKG();
     return EV_NULL;
 }
+
 Event blowState(){
        // TODO: display "BLOW IT!" on LCD
     // TODO: read thermistor from dummy over BT
     // if (breathDetected()) {
     //     pickNextChallenge();
     // }
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showBlowScreen(fsm_getScore());
+        audio_play(TRACK_BLOW);
+        screenDrawn = true;
+    }
+
+    SensorData data;
+    if (bt_receive(&data) && data.thermistor > BREATH_THRESHOLD) {
+        screenDrawn = false;
+        lcd_setEKGState(EKG_SUCCESS);
+        audio_play(TRACK_SUCCESS);
+        return pickNextChallenge();
+    }
+
+    lcd_updateEKG();
     return EV_NULL;
 }
 Event pumpState(){
@@ -60,18 +108,48 @@ Event pumpState(){
     // if (forceDetected()) {
     //     pickNextChallenge();
     // }
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showPumpScreen(fsm_getScore());
+        audio_play(TRACK_PUMP);
+        screenDrawn = true;
+    }
+
+    SensorData data;
+    if (bt_receive(&data) && data.forceDetected) {
+        screenDrawn = false;
+        lcd_setEKGState(EKG_SUCCESS);
+        audio_play(TRACK_SUCCESS);
+        return pickNextChallenge();
+    }
+
+    lcd_updateEKG();
     return EV_NULL;
 }
 Event gameOverState(){
        // TODO: display "Game Over! Score: X" on LCD
     // TODO: poll start button for restart
     // if (digitalRead(PIN_START_BTN) == LOW) return EV_START_BTN;
+    static bool screenDrawn = false;
+    if (!screenDrawn) {
+        lcd_showGameOverScreen(fsm_getScore());
+        audio_play(TRACK_GAME_OVER);
+        screenDrawn = true;
+    }
+
+    if (digitalRead(PIN_START_BTN) == LOW) {
+        screenDrawn = false;
+        return EV_START_BTN;
+    }
+
+    lcd_updateEKG();
     return EV_NULL;
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Challenge Picker: randomly selects next challenge and dispatches EV_PROMPT_*
 Event pickNextChallenge(){
+    fsm_addScore();
     switch ((int)random(3)) {
         case 0: return EV_PROMPT_DEFIB;
         case 1: return EV_PROMPT_BLOW;

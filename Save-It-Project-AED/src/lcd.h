@@ -40,13 +40,14 @@ typedef enum {
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // LCD Public Interface/functions
-void lcd_init();                            // initialize display and backlight
-void lcd_showSyncScreen();                  // "Connecting..."
-void lcd_showStartScreen();                 // "Press Start to Begin!"
-void lcd_showDefibScreen();                 // "SHOCK IT!" + EKG
-void lcd_showBlowScreen();                  // "BLOW IT!" + EKG
-void lcd_showPumpScreen();                  // "PUMP IT!" + EKG
-void lcd_showGameOverScreen(uint8_t score); // "Game Over! Score: X" + flatline
-void lcd_updateEKG();                       // call every tick to scroll EKG
-void lcd_setEKGState(EKGState state);       // change EKG behavior
-void lcd_updateScore(uint8_t score);        // update score display in header
+void lcd_init();                                // initialize display and backlight
+void lcd_showSyncScreen();                      // "Connecting..."
+void lcd_showStartScreen();                     // "Press Start to Begin!"
+void lcd_showDefibScreen(uint8_t score);        // "SHOCK IT!" + EKG
+void lcd_showBlowScreen(uint8_t score);         // "BLOW IT!" + EKG
+void lcd_showPumpScreen(uint8_t score);         // "PUMP IT!" + EKG
+void lcd_showGameOverScreen(uint8_t score);     // "Game Over! Score: X" + flatline
+void lcd_showSyncStatus(bool btOk, bool padsOk);// helper for sync screen to show connection status
+void lcd_updateEKG();                           // call every tick to scroll EKG
+void lcd_setEKGState(EKGState state);           // change EKG behavior
+void lcd_updateScore(uint8_t score);            // update score display in header
