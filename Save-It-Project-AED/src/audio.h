@@ -11,7 +11,8 @@
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Track Definitions — loaded onto microSD in order
 #define TRACK_START         1       // game start audio
-#define TRACK_DEFIB         2       // defibrillate prompt
+#define TRACK_CHARGE        2       // defibrillate prompt
+#define TRACK_SHOCK         3       // shock prompt
 #define TRACK_BLOW          3       // blow prompt
 #define TRACK_PUMP          4       // pump prompt
 #define TRACK_SUCCESS       5       // successful action

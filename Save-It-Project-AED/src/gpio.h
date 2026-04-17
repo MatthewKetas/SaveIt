@@ -36,3 +36,26 @@
 // Defib Pads (to allow game start) Pins
 #define PIN_PAD_LEFT    21      // left defib pad reed switch
 #define PIN_PAD_RIGHT   13      // right defib pad reed switch
+
+//Debounce delay for buttons (ms)
+#define DEBOUNCE_MS  125
+
+// inline debounce helper — returns true on valid button press
+inline bool debounceButton(uint8_t pin, uint32_t* lastPressMs, bool* lastState) { // inline allows this function to be defined in the header without causing multiple definition errors
+    bool currentState = digitalRead(pin) == LOW;  // true = pressed
+    
+    if (currentState && !(*lastState)) {  // just pressed — falling edge
+        uint32_t now = millis();
+        if (now - *lastPressMs >= DEBOUNCE_MS) {
+            *lastPressMs = now;
+            *lastState   = true;   // latch pressed
+            return true;           // valid press detected
+        }
+    }
+    
+    if (!currentState) {
+        *lastState = false;  // button released — ready for next press
+    }
+    
+    return false;
+}

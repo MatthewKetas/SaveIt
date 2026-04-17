@@ -36,5 +36,6 @@ bool bt_receive(SensorData* data) { // read and parse incoming sensor data, retu
 
     // reconstruct float from two bytes
     data->thermistor = ((thermHigh << 8) | thermLow) / 100.0f; //changes the data result, which is a pointer so it will update the data in the calling function
+    
     return true;
 }

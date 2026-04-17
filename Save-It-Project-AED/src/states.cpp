@@ -7,6 +7,13 @@
 #include "lcd.h"
 #include "audio.h"
 
+// debounce timestamps and states — one per button
+static uint32_t lastStartMs     = 0;  static bool lastStartState    = false;
+static uint32_t lastGameOverMs  = 0;  static bool lastGameOverState = false;
+static uint32_t lastChargeMs    = 0;  static bool lastChargeState   = false;
+static uint32_t lastShockMs     = 0;  static bool lastShockState    = false;
+static uint32_t lastForceMs     = 0;  // no latch needed for the snap dome
+
 Event syncState(){
     static bool screenDrawn = false;
     if (!screenDrawn) {
@@ -15,8 +22,9 @@ Event syncState(){
     }
     // check BT connection and reed switches every tick
     bool btOk   = bt_connected();
+    // padsOk is true if both left and right pads are connected (active LOW)
     bool padsOk = (digitalRead(PIN_PAD_LEFT)  == LOW) && (digitalRead(PIN_PAD_RIGHT) == LOW);
-
+    // if both conditions are good, transition to next state
     if (btOk && padsOk) {
         screenDrawn = false;  // reset for next time we enter sync
         return EV_SYNC_OK;
@@ -28,6 +36,7 @@ Event syncState(){
     lcd_updateEKG();
     return EV_NULL;
 }
+
 Event startState(){
     // display "Press Start Button to Begin!" on LCD screen, wait for start button press to dispatch EV_START_BTN and transition to next state, show the start screen
     // set up peripherals and ensure everything is ready to start the game, reset score to 0, etc.
@@ -44,7 +53,7 @@ Event startState(){
     }
 
     // poll start button
-    if (digitalRead(PIN_START_BTN) == LOW) { // on press, transition to next state  
+    if (debounceButton(PIN_START_BTN, &lastStartMs, &lastStartState)) { // on press, transition to next state  
         screenDrawn = false;  // reset for next entry
         return pickNextChallenge();  // dispatches random EV_PROMPT_*
     }
@@ -53,25 +62,43 @@ Event startState(){
     return EV_NULL;
 }
 Event defibState(){
-    // TODO: display "SHOCK IT!" on LCD
-    // TODO: read shock sensor from dummy over BT
-    // if (shockDetected()) {
-    //     pickNextChallenge();
-    // }
-    static bool screenDrawn = false;
+    static bool screenDrawn   = false;
+    static bool chargePressed = false;
+
     if (!screenDrawn) {
-        lcd_showDefibScreen(fsm_getScore());  // show prompt and score
-        audio_play(TRACK_DEFIB);         // play "SHOCK IT!" audio
-        screenDrawn = true;
+        lcd_drawHeader("CHARGE IT!", COLOR_PROMPT_DEFIB, fsm_getScore());
+        audio_play(TRACK_CHARGE);
+        screenDrawn   = true;
+        chargePressed = false;
     }
 
-    // poll charge and shock buttons — must press charge first then shock
-    if (digitalRead(PIN_CHARGE_BTN) == LOW &&
-        digitalRead(PIN_SHOCK_BTN)  == LOW) {
-        screenDrawn = false;
-        lcd_setEKGState(EKG_SUCCESS);    // spike on success
-        audio_play(TRACK_SUCCESS);
-        return pickNextChallenge();
+    if (!chargePressed) {
+        if (debounceButton(PIN_CHARGE_BTN, &lastChargeMs, &lastChargeState)) {
+            chargePressed = true;
+            lcd_drawHeader("SHOCK IT!", COLOR_PROMPT_DEFIB, fsm_getScore());
+            audio_play(TRACK_SHOCK);
+        }
+        // pressing shock before charge = fail
+        if (debounceButton(PIN_SHOCK_BTN, &lastShockMs, &lastShockState)) {
+            screenDrawn   = false;
+            chargePressed = false;
+            return EV_FAIL;
+        }
+    } else {
+        if (debounceButton(PIN_SHOCK_BTN, &lastShockMs, &lastShockState)) {
+            screenDrawn   = false;
+            chargePressed = false;
+            fsm_addScore();
+            lcd_setEKGState(EKG_SUCCESS);
+            audio_play(TRACK_SUCCESS);
+            return pickNextChallenge();
+        }
+        // pressing charge again after already charged = fail
+        if (debounceButton(PIN_CHARGE_BTN, &lastChargeMs, &lastChargeState)) {
+            screenDrawn   = false;
+            chargePressed = false;
+            return EV_FAIL;
+        }
     }
 
     lcd_updateEKG();
@@ -96,6 +123,7 @@ Event blowState(){
         screenDrawn = false;
         lcd_setEKGState(EKG_SUCCESS);
         audio_play(TRACK_SUCCESS);
+        fsm_addScore();
         return pickNextChallenge();
     }
 
@@ -103,11 +131,6 @@ Event blowState(){
     return EV_NULL;
 }
 Event pumpState(){
-       // TODO: display "PUMP IT!" on LCD
-    // TODO: read force sensor from dummy over BT
-    // if (forceDetected()) {
-    //     pickNextChallenge();
-    // }
     static bool screenDrawn = false;
     if (!screenDrawn) {
         lcd_showPumpScreen(fsm_getScore());
@@ -117,15 +140,21 @@ Event pumpState(){
 
     SensorData data;
     if (bt_receive(&data) && data.forceDetected) {
-        screenDrawn = false;
-        lcd_setEKGState(EKG_SUCCESS);
-        audio_play(TRACK_SUCCESS);
-        return pickNextChallenge();
+        uint32_t now = millis();
+        if (now - lastForceMs >= DEBOUNCE_MS) {
+            lastForceMs = now;
+            screenDrawn = false;
+            lcd_setEKGState(EKG_SUCCESS);
+            audio_play(TRACK_SUCCESS);
+            fsm_addScore();
+            return pickNextChallenge();
+        }
     }
 
     lcd_updateEKG();
     return EV_NULL;
 }
+
 Event gameOverState(){
        // TODO: display "Game Over! Score: X" on LCD
     // TODO: poll start button for restart
@@ -137,7 +166,7 @@ Event gameOverState(){
         screenDrawn = true;
     }
 
-    if (digitalRead(PIN_START_BTN) == LOW) {
+    if (debounceButton(PIN_START_BTN, &lastGameOverMs, &lastGameOverState)) {
         screenDrawn = false;
         return EV_START_BTN;
     }
@@ -149,7 +178,6 @@ Event gameOverState(){
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Challenge Picker: randomly selects next challenge and dispatches EV_PROMPT_*
 Event pickNextChallenge(){
-    fsm_addScore();
     switch ((int)random(3)) {
         case 0: return EV_PROMPT_DEFIB;
         case 1: return EV_PROMPT_BLOW;
