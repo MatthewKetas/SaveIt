@@ -114,17 +114,7 @@ Event blowState() {
     }
 
     SensorData data;
-    if (BT_SERIAL.available()) {
-        lcd_debugPrint("data arriving");
-    } else {
-    lcd_debugPrint("no data");
-    }   
     if (bt_receive(&data)) {
-        // debug — show raw values on screen
-        char buf[32];
-        snprintf(buf, sizeof(buf), "T:%.1f F:%d", data.thermistor, data.forceDetected);
-        lcd_debugPrint(buf);
-
         // actual game logic
         if (data.thermistor < BREATH_THRESHOLD) {
             screenDrawn = false;
@@ -149,11 +139,6 @@ Event pumpState() {
 
     SensorData data;
     if (bt_receive(&data)) {
-        // debug — show raw values on screen
-        char buf[32];
-        snprintf(buf, sizeof(buf), "T:%.1f F:%d", data.thermistor, data.forceDetected);
-        lcd_debugPrint(buf);
-
         // actual game logic
         if (data.forceDetected) {
             uint32_t now = millis();

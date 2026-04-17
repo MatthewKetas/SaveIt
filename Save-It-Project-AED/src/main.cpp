@@ -7,7 +7,7 @@
 #include "audio.h"
 
 void setup() {
-  Serial.begin(115200);  //for debug prints during development
+  Serial.begin(9600);  //for debug prints during development
 
   // input pin modes with internal pull-ups
   pinMode(PIN_START_BTN,  INPUT_PULLUP);
