@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 // ── Input Pins ────────────────────────────────────────────────
-#define PIN_FORCE_SENSOR    12    // binary snap dome force sensor — digital read
+#define PIN_FORCE_SENSOR    6    // binary snap dome force sensor — digital read
 #define PIN_THERMISTOR      A5    // thermistor for breath detection — analog read 
 
 // ── Bluetooth Pins ────────────────────────────────────────────
