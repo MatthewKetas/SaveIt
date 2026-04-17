@@ -7,7 +7,8 @@
 static SoftwareSerial BTSerial(BT_RX_PIN, BT_TX_PIN);
 
 void bt_init() {
-    BTSerial.begin(BT_BAUD);  // // initialize SoftwareSerial for HC-05
+    BTSerial.begin(BT_BAUD);  // initialize SoftwareSerial for HC-05
+}
 
 void bt_sendSensorData(bool force, uint16_t therm) {
     BTSerial.write(0xFF);           // start byte
