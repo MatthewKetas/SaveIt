@@ -105,12 +105,7 @@ Event defibState(){
     return EV_NULL;
 }
 
-Event blowState(){
-       // TODO: display "BLOW IT!" on LCD
-    // TODO: read thermistor from dummy over BT
-    // if (breathDetected()) {
-    //     pickNextChallenge();
-    // }
+Event blowState() {
     static bool screenDrawn = false;
     if (!screenDrawn) {
         lcd_showBlowScreen(fsm_getScore());
@@ -119,18 +114,32 @@ Event blowState(){
     }
 
     SensorData data;
-    if (bt_receive(&data) && data.thermistor > BREATH_THRESHOLD) {
-        screenDrawn = false;
-        lcd_setEKGState(EKG_SUCCESS);
-        audio_play(TRACK_SUCCESS);
-        fsm_addScore();
-        return pickNextChallenge();
+    if (BT_SERIAL.available()) {
+        lcd_debugPrint("data arriving");
+    } else {
+    lcd_debugPrint("no data");
+    }   
+    if (bt_receive(&data)) {
+        // debug — show raw values on screen
+        char buf[32];
+        snprintf(buf, sizeof(buf), "T:%.1f F:%d", data.thermistor, data.forceDetected);
+        lcd_debugPrint(buf);
+
+        // actual game logic
+        if (data.thermistor < BREATH_THRESHOLD) {
+            screenDrawn = false;
+            lcd_setEKGState(EKG_SUCCESS);
+            audio_play(TRACK_SUCCESS);
+            fsm_addScore();
+            return pickNextChallenge();
+        }
     }
 
     lcd_updateEKG();
     return EV_NULL;
 }
-Event pumpState(){
+
+Event pumpState() {
     static bool screenDrawn = false;
     if (!screenDrawn) {
         lcd_showPumpScreen(fsm_getScore());
@@ -139,15 +148,23 @@ Event pumpState(){
     }
 
     SensorData data;
-    if (bt_receive(&data) && data.forceDetected) {
-        uint32_t now = millis();
-        if (now - lastForceMs >= DEBOUNCE_MS) {
-            lastForceMs = now;
-            screenDrawn = false;
-            lcd_setEKGState(EKG_SUCCESS);
-            audio_play(TRACK_SUCCESS);
-            fsm_addScore();
-            return pickNextChallenge();
+    if (bt_receive(&data)) {
+        // debug — show raw values on screen
+        char buf[32];
+        snprintf(buf, sizeof(buf), "T:%.1f F:%d", data.thermistor, data.forceDetected);
+        lcd_debugPrint(buf);
+
+        // actual game logic
+        if (data.forceDetected) {
+            uint32_t now = millis();
+            if (now - lastForceMs >= DEBOUNCE_MS) {
+                lastForceMs = now;
+                screenDrawn = false;
+                lcd_setEKGState(EKG_SUCCESS);
+                audio_play(TRACK_SUCCESS);
+                fsm_addScore();
+                return pickNextChallenge();
+            }
         }
     }
 

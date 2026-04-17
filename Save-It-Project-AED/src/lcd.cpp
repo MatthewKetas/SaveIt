@@ -14,7 +14,17 @@ static int16_t  ekgPhase    = 0;           // phase counter for waveform generat
 static int8_t   spikeSample = 0;           // which sample of the spike we're on
 
 // spike shape - has offset values to simulate a sort of heart rhythm
-static const int8_t spikeShape[] = {0, -5, -15, -40, 60, -20, 10, 5, 0};
+static const int8_t spikeShape[] = {
+    0, 0, 0,           // flat lead in
+    -3, -3,            // small P wave up
+    0, 0,              // back to baseline
+    -8, -15,           // Q dip down
+    -25, -35, -40,     // sharp R peak up
+    -20, -5,           // back down
+    15, 25, 20,        // S wave down
+    10, 5, 2,          // T wave recovery
+    0, 0, 0            // flat tail
+};
 static const uint8_t SPIKE_LEN   = sizeof(spikeShape);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,10 +45,10 @@ static void lcd_printCentered(const char* text, uint8_t sz, uint16_t color, int1
 }
 
 static void lcd_drawScore(uint8_t score) { // draws the score in the top right corner of the header
-    tft.fillRect(SCREEN_W - 80, 0, 80, 30, COLOR_BG);  // erase old score
+    tft.fillRect(SCREEN_W - 90, 0, 90, 25, COLOR_BG); // clear previous score
     tft.setTextSize(2);
     tft.setTextColor(COLOR_HIGHLIGHT);
-    tft.setCursor(SCREEN_W - 75, 8);
+    tft.setCursor(SCREEN_W - 85, 5);
     tft.print("Score:");
     tft.print(score);
 }
@@ -59,15 +69,15 @@ static int16_t ekgNextSample() {
         case EKG_ACTIVE: { // steady heartbeat rhythm 
             // steady heartbeat — PQRST every 60 samples
             ekgPhase++;
-            int16_t pos = ekgPhase % 60;
-            if (pos < SPIKE_LEN) return centerY + spikeShape[pos];
+            int16_t pos = ekgPhase % 120;
+            if (pos < (int16_t)SPIKE_LEN) return centerY + spikeShape[pos];
             return centerY;
         }
 
         case EKG_SUCCESS: { // one big spike to celebrate success, then back to active rhythm
             // one big spike then back to active
             if (spikeSample < SPIKE_LEN) {
-                int16_t val = centerY + spikeShape[spikeSample] * 2;  // 2x amplitude
+                int16_t val = centerY + (int16_t)(spikeShape[spikeSample] * 1.5f);
                 spikeSample++;
                 return val;
             }
@@ -83,12 +93,28 @@ static int16_t ekgNextSample() {
     return centerY;
 }
 
+void lcd_drawHeader(const char* prompt, uint16_t promptColor, uint8_t score) {
+    tft.fillRect(0, 0, SCREEN_W, HEADER_H, COLOR_BG);  // clear header
+    
+    // "SaveIt!" top left
+    tft.setTextSize(2);
+    tft.setTextColor(COLOR_TEXT);
+    tft.setCursor(5, 8);
+    tft.print("SaveIt!");
+    
+    // prompt centered
+    lcd_printCentered(prompt, 3, promptColor, 35);
+    
+    // score top right
+    lcd_drawScore(score);
+}
+
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // lcd_init
 void lcd_init() {
     pinMode(LCD_BL_PIN, OUTPUT);
     digitalWrite(LCD_BL_PIN, HIGH);
-    tft.init(SCREEN_W, SCREEN_H, SPI_MODE0);
+    tft.init(SCREEN_H, SCREEN_W, SPI_MODE0); // initialize display (its in portrait mode by default, so we swap width and height here and rotate below
     tft.setRotation(1);
     tft.fillScreen(COLOR_BG);
 
@@ -155,23 +181,17 @@ void lcd_showStartScreen() {
 }
 
 void lcd_showDefibScreen(uint8_t score) {
-    tft.fillRect(0, 0, SCREEN_W, HEADER_H, COLOR_BG);  // clear header only
-    lcd_printCentered("SHOCK IT!", 3, COLOR_FAIL, 10);
-    lcd_drawScore(score);
+    lcd_drawHeader("DEFIB-IT!", COLOR_PROMPT_DEFIB, score);
     lcd_setEKGState(EKG_ACTIVE);
 }
 
 void lcd_showBlowScreen(uint8_t score) {
-    tft.fillRect(0, 0, SCREEN_W, HEADER_H, COLOR_BG);
-    lcd_printCentered("BLOW IT!", 3, COLOR_SUCCESS, 10);
-    lcd_drawScore(score);
+    lcd_drawHeader("BLOW IT!", COLOR_PROMPT_BLOW, score);
     lcd_setEKGState(EKG_ACTIVE);
 }
 
 void lcd_showPumpScreen(uint8_t score) {
-    tft.fillRect(0, 0, SCREEN_W, HEADER_H, COLOR_BG);
-    lcd_printCentered("PUMP IT!", 3, COLOR_HIGHLIGHT, 10);
-    lcd_drawScore(score);
+    lcd_drawHeader("PUMP IT!", COLOR_PROMPT_PUMP, score);
     lcd_setEKGState(EKG_ACTIVE);
 }
 
@@ -189,4 +209,13 @@ void lcd_showSyncStatus(bool btOk, bool padsOk) {
     tft.fillRect(0, 40, SCREEN_W, 40, COLOR_BG);  // clear status area only
     if (!btOk)   lcd_printCentered("No BT connection",    1, COLOR_FAIL, 45);
     if (!padsOk) lcd_printCentered("Place pads on dummy", 1, COLOR_FAIL, 60);
+}
+
+// lcd.cpp
+void lcd_debugPrint(const char* text) {
+    tft.fillRect(0, HEADER_H - 15, SCREEN_W, 15, COLOR_BG);
+    tft.setTextSize(1);
+    tft.setTextColor(COLOR_TEXT);
+    tft.setCursor(5, HEADER_H - 15);
+    tft.print(text);
 }
