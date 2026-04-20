@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Track Definitions — loaded onto microSD in order
 #define TRACK_START         1       // game start audio
-#define TRACK_CHARGE        2       // defibrillate prompt
+#define TRACK_CHARGE        3       // defibrillate prompt
 #define TRACK_SHOCK         5       // shock prompt
 #define TRACK_BLOW          7       // blow prompt
-#define TRACK_PUMP          3       // pump prompt
-#define TRACK_SUCCESS       6       // successful action
-#define TRACK_GAME_OVER     4       // game over audio
+#define TRACK_PUMP          9       // pump prompt
+#define TRACK_SUCCESS       11       // successful action
+#define TRACK_GAME_OVER     13       // game over audio
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Audio Public Interface
