@@ -186,12 +186,12 @@ void lcd_showDefibScreen(uint8_t score) {
 }
 
 void lcd_showBlowScreen(uint8_t score) {
-    lcd_drawHeader("BLOW IT!", COLOR_PROMPT_BLOW, score);
+    lcd_drawHeader("BREATHE IT!", COLOR_PROMPT_BLOW, score);
     lcd_setEKGState(EKG_ACTIVE);
 }
 
 void lcd_showPumpScreen(uint8_t score) {
-    lcd_drawHeader("PUMP IT!", COLOR_PROMPT_PUMP, score);
+    lcd_drawHeader("COMPRESS IT!", COLOR_PROMPT_PUMP, score);
     lcd_setEKGState(EKG_ACTIVE);
 }
 
@@ -209,13 +209,4 @@ void lcd_showSyncStatus(bool btOk, bool padsOk) {
     tft.fillRect(0, 40, SCREEN_W, 40, COLOR_BG);  // clear status area only
     if (!btOk)   lcd_printCentered("No BT connection",    1, COLOR_FAIL, 45);
     if (!padsOk) lcd_printCentered("Place pads on dummy", 1, COLOR_FAIL, 60);
-}
-
-// lcd.cpp
-void lcd_debugPrint(const char* text) {
-    tft.fillRect(0, HEADER_H - 15, SCREEN_W, 15, COLOR_BG);
-    tft.setTextSize(1);
-    tft.setTextColor(COLOR_TEXT);
-    tft.setCursor(5, HEADER_H - 15);
-    tft.print(text);
 }

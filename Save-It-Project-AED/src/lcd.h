@@ -57,5 +57,3 @@ void lcd_updateEKG();                           // call every tick to scroll EKG
 void lcd_setEKGState(EKGState state);           // change EKG behavior
 void lcd_updateScore(uint8_t score);            // update score display in header
 void lcd_drawHeader(const char* prompt, uint16_t promptColor, uint8_t score); // helper to draw header for challenge screens
-
-void lcd_debugPrint(const char* text);  // temporary debug helper

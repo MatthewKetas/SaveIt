@@ -22,7 +22,10 @@ void audio_init() {
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // audio_play: plays a track by number, checks BUSY pin to avoid interrupting current track
 void audio_play(uint8_t track) {
-    if (audio_isBusy()) return;     // don't interrupt a playing track
+    if(audio_isBusy()){
+        Serial.println("Unable to play track - audio player is busy.");
+        return;
+    }
     dfPlayer.play(track);
 }
 

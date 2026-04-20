@@ -10,7 +10,7 @@
 #define SCORE_DIFFICULTY_STEP   100     // ms reduced per point scored
 
 // Breath sensor constant
-#define BREATH_THRESHOLD 400.0f  // tune more
+#define BREATH_THRESHOLD 510.0f  // tune more
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
