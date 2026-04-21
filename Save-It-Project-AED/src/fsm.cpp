@@ -60,6 +60,7 @@ void fsm_dispatch(Event ev) { // takes in current event and state and references
     if (next == ST_START) {
         fsm.score         = 0;
         fsm.promptStartMs = 0;
+        states_reset();
     }
     fsm.current = next;     // sets the current state to the state it is about to change to
 }
@@ -75,7 +76,11 @@ uint32_t getPromptTimeout() {
 // score getter and setter
 uint8_t fsm_getScore()  { return fsm.score; }
 
-void    fsm_addScore()  { fsm.score++; }
+void fsm_addScore(){ 
+    if (fsm.score < MAX_SCORE) fsm.score++; // increments the score by 1, up to the maximum score
+}
+
+State fsm_getState() { return fsm.current; } // returns the current state of the FSM
 
 // checks the timer every tick
 void fsm_tick() {

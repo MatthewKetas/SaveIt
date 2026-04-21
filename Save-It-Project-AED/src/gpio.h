@@ -2,7 +2,6 @@
 #pragma once
 #include <Arduino.h>
 
-//TODO: define the actual GPIO pins for bluetooth (AED)
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Bluetooth Pins
 #define BT_STATE_PIN    35      // HC-05 STATE pin — high when connected

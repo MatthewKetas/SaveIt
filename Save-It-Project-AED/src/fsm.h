@@ -12,6 +12,8 @@
 // Breath sensor constant
 #define BREATH_THRESHOLD 510.0f  // tune more
 
+// Max score
+#define MAX_SCORE 10 //99  // maximum score before game is won
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // States and Events: shared types used across all files
@@ -46,6 +48,8 @@ void fsm_dispatch(Event ev); // takes in current event and state and references 
 
 uint8_t fsm_getScore();    // read score for LCD display
 
-void    fsm_addScore();    // increment score on success
+void fsm_addScore();    // increment score on success
+
+State fsm_getState(); // read current state
 
 void fsm_tick();

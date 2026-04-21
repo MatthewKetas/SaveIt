@@ -45,10 +45,10 @@ static void lcd_printCentered(const char* text, uint8_t sz, uint16_t color, int1
 }
 
 static void lcd_drawScore(uint8_t score) { // draws the score in the top right corner of the header
-    tft.fillRect(SCREEN_W - 90, 0, 90, 25, COLOR_BG); // clear previous score
+    tft.fillRect(SCREEN_W - 105, 0, 105, 25, COLOR_BG); // clear previous score
     tft.setTextSize(2);
     tft.setTextColor(COLOR_HIGHLIGHT);
-    tft.setCursor(SCREEN_W - 85, 5);
+    tft.setCursor(SCREEN_W - 100, 5);
     tft.print("Score:");
     tft.print(score);
 }
@@ -197,10 +197,16 @@ void lcd_showPumpScreen(uint8_t score) {
 
 void lcd_showGameOverScreen(uint8_t score) {
     lcd_clear();
-    lcd_printCentered("GAME OVER", 3, COLOR_FAIL, 10);
-    char scoreStr[16];
-    snprintf(scoreStr, sizeof(scoreStr), "Score: %d", score);
-    lcd_printCentered(scoreStr, 2, COLOR_TEXT, 50);
+    if (score >= 99) { // if perfect score, show special message
+        lcd_printCentered("YOU WIN!", 3, COLOR_SUCCESS, 10);
+        lcd_printCentered("Perfect Score: 99", 2, COLOR_HIGHLIGHT, 50);
+    } else { // otherwise show regular game over with score
+        lcd_printCentered("GAME OVER", 3, COLOR_FAIL, 10);
+        char scoreStr[16];
+        snprintf(scoreStr, sizeof(scoreStr), "Score: %d", score);
+        lcd_printCentered(scoreStr, 2, COLOR_TEXT, 50);
+    }
+    
     lcd_printCentered("Press Start to play again", 1, COLOR_TEXT, 70);
     lcd_setEKGState(EKG_FAIL);
 }
