@@ -139,22 +139,30 @@ void lcd_setEKGState(EKGState state) {
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // lcd_updateEKG: scrolls EKG left by 1 pixel, called every tick
 void lcd_updateEKG() {
-    // erase leftmost column
-    tft.drawFastVLine(0, EKG_Y, EKG_H, COLOR_BG);
-
-    // shift buffer left
+    // shift buffer left — single pixels fine here
     for (int i = 0; i < SCREEN_W - 1; i++) {
         int16_t oldY = ekgBuf[i];
         int16_t newY = ekgBuf[i + 1];
-        tft.drawPixel(i, oldY, COLOR_BG);           // erase old
-        tft.drawPixel(i, newY, ekgColor);           // draw shifted
+        tft.drawPixel(i, oldY, COLOR_BG);
+        tft.drawPixel(i, newY, ekgColor);
         ekgBuf[i] = newY;
     }
 
-    // generate and draw new sample on right edge
-    int16_t newY = ekgNextSample();
-    newY = constrain(newY, EKG_Y, EKG_Y + EKG_H - 1);  // keep in bounds
-    tft.drawPixel(SCREEN_W - 1, newY, ekgColor);
+    // generate new sample
+    int16_t prevY = ekgBuf[SCREEN_W - 2];
+    int16_t newY  = ekgNextSample();
+    newY = constrain(newY, EKG_Y, EKG_Y + EKG_H - 1);
+
+    // erase old rightmost pixel
+    tft.drawPixel(SCREEN_W - 1, ekgBuf[SCREEN_W - 1], COLOR_BG);
+
+    // draw vertical line connecting previous sample to new sample
+    if (newY < prevY) {
+        tft.drawFastVLine(SCREEN_W - 1, newY, prevY - newY + 1, ekgColor);
+    } else {
+        tft.drawFastVLine(SCREEN_W - 1, prevY, newY - prevY + 1, ekgColor);
+    }
+
     ekgBuf[SCREEN_W - 1] = newY;
 }
 

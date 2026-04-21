@@ -20,9 +20,9 @@ static const State transTable[ST_NULL][EV_NULL] = { //use nulls to define the si
     //                      EV_SYNC   EV_SYNC_OK   EV_START_BTN   EV_PROMPT_DEFIB   EV_PROMPT_BLOW   EV_PROMPT_PUMP   EV_FAIL
     /* ST_SYNC      */      {ST_SYNC,  ST_START,    ST_NULL,       ST_NULL,          ST_NULL,         ST_NULL,         ST_NULL     },
     /* ST_START     */      {ST_SYNC,  ST_NULL,     ST_NULL,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_NULL     },
-    /* ST_DEFIB_IT  */      {ST_SYNC,  ST_NULL,     ST_NULL,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
-    /* ST_BLOW_IT   */      {ST_SYNC,  ST_NULL,     ST_NULL,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
-    /* ST_PUMP_IT   */      {ST_SYNC,  ST_NULL,     ST_NULL,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_DEFIB_IT  */      {ST_SYNC,  ST_NULL,     ST_DEFIB_IT,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_BLOW_IT   */      {ST_SYNC,  ST_NULL,     ST_BLOW_IT,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
+    /* ST_PUMP_IT   */      {ST_SYNC,  ST_NULL,     ST_PUMP_IT,       ST_DEFIB_IT,      ST_BLOW_IT,      ST_PUMP_IT,      ST_GAME_OVER},
     /* ST_GAME_OVER */      {ST_SYNC,  ST_NULL,     ST_START,      ST_NULL,          ST_NULL,         ST_NULL,         ST_NULL     },
 };  
 //press the start button mid game it restarts the game 

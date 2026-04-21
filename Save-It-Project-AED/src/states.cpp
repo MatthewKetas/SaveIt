@@ -106,14 +106,15 @@ Event defibState(){
             return EV_FAIL;
         }
         // fail if force or breath detected during defib challenge
-        SensorData data;
-        if (bt_receive(&data)) {
-            if (data.forceDetected || data.thermistor < BREATH_THRESHOLD) {
-                defibScreenDrawn = false;
-                defibChargePressed = false;
-                return EV_FAIL;
-            }
-        }
+        //TODO: sensing continued input from last state 
+        // SensorData data;
+        // if (bt_receive(&data)) {
+        //     if (data.forceDetected || data.thermistor < BREATH_THRESHOLD) {
+        //         defibScreenDrawn = false;
+        //         defibChargePressed = false;
+        //         return EV_FAIL;
+        //     }
+        // }
     }
 
     lcd_updateEKG();
@@ -131,10 +132,11 @@ Event blowState() {
     SensorData data;
     if (bt_receive(&data)) {
         // wrong input — force sensor during blow = fail
-        if (data.forceDetected) {
-            blowScreenDrawn = false;
-            return EV_FAIL;
-        }
+        //TODO: fail because of speed still sensing it when in next state
+        // if (data.forceDetected) { 
+        //     blowScreenDrawn = false;
+        //     return EV_FAIL;
+        // }
         // correct input — breath detected
         if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 3 && prevThermistor < BREATH_THRESHOLD)) {
             prevThermistor = data.thermistor;
@@ -166,10 +168,11 @@ Event pumpState() {
     SensorData data;
     if (bt_receive(&data)) {
         // wrong input — breath during pump = fail
-        if (data.thermistor < BREATH_THRESHOLD) {
-            pumpScreenDrawn = false;
-            return EV_FAIL;
-        }
+        //TODO: fail because of speed still sensing it when in next state
+        // if (data.thermistor < BREATH_THRESHOLD) {
+        //     pumpScreenDrawn = false;
+        //     return EV_FAIL;
+        // }
         // correct input — force detected
         if (data.forceDetected) {
             uint32_t now = millis();
