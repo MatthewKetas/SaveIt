@@ -2,19 +2,6 @@
 #include "gpio.h"
 #include "bluetooth.h"
 
-static const uint32_t SENSOR_SEND_INTERVAL_MS = 100;
-static const uint8_t THERM_SAMPLES_PER_SEND = 4;
-
-static uint16_t readThermistorAveraged() {
-  uint32_t total = 0;
-
-  for (uint8_t i = 0; i < THERM_SAMPLES_PER_SEND; i++) {
-    total += analogRead(PIN_THERMISTOR);
-  }
-
-  return total / THERM_SAMPLES_PER_SEND;
-}
-
 void setup() {
   Serial.begin(9600);  // debug output
 
@@ -26,25 +13,30 @@ void setup() {
 }
 
 void loop() {
-    static uint32_t lastSendMs = 0;
-
-    const uint32_t now = millis();
-    const bool force = !digitalRead(PIN_FORCE_SENSOR); // snap dome pressed is active LOW
-    const uint16_t therm = readThermistorAveraged();
-
-    if (now - lastSendMs >= SENSOR_SEND_INTERVAL_MS) {
-        lastSendMs = now;
-        bt_sendSensorData(force, therm);
-    }
+    bool force = !digitalRead(PIN_FORCE_SENSOR); // snap dome pressed is active LOW
+    uint16_t therm = analogRead(PIN_THERMISTOR); // thermistor reading (0-1023)
+    bt_sendSensorData(force, therm);
 
     if (force) {
         // snap dome pressed — rapid blink
-        digitalWrite(DEBUG_LED_PIN, ((now / 50) % 2) ? HIGH : LOW);
+        digitalWrite(DEBUG_LED_PIN, HIGH);
+        delay(50);
+        digitalWrite(DEBUG_LED_PIN, LOW);
+        delay(50);
+        digitalWrite(DEBUG_LED_PIN, HIGH);
+        delay(50);
+        digitalWrite(DEBUG_LED_PIN, LOW);
+        delay(350);  // total still ~500ms
+
     } else if (therm < 400) {
         // thermistor reading below threshold — slow blink
-        digitalWrite(DEBUG_LED_PIN, ((now / 250) % 2) ? HIGH : LOW);
+        digitalWrite(DEBUG_LED_PIN, HIGH);
+        delay(250);
+        digitalWrite(DEBUG_LED_PIN, LOW);
+        delay(250);
     } else {
         // nothing detected — solid off
         digitalWrite(DEBUG_LED_PIN, LOW);
+        delay(500);
     }
 }
