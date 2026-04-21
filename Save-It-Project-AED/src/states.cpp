@@ -136,7 +136,6 @@ Event blowState() {
             return EV_FAIL;
         }
         // correct input — breath detected
-        if (data.thermistor < BREATH_THRESHOLD) {
         if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 3 && prevThermistor < BREATH_THRESHOLD)) {
             prevThermistor = data.thermistor;
             blowScreenDrawn = false;
