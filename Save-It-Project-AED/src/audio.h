@@ -6,7 +6,7 @@
 // Audio Configuration
 #define AUDIO_SERIAL    Serial1     // UART1 for DFPlayer Mini
 #define AUDIO_BAUD      9600        // DFPlayer default baud rate
-#define AUDIO_VOLUME    20          // default volume 0-30
+#define AUDIO_VOLUME    29          // default volume 0-30
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Track Definitions — loaded onto microSD in order

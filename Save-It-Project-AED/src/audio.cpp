@@ -12,7 +12,8 @@ void audio_init() {
     
     if (!dfPlayer.begin(AUDIO_SERIAL)) {
         Serial.println("DFPlayer init failed — check wiring and SD card");
-        return;
+        dfPlayer.stop();
+        delay(20);
     }
 
     dfPlayer.volume(AUDIO_VOLUME);  // set default volume
