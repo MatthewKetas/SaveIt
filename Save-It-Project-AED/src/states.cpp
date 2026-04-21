@@ -16,6 +16,9 @@ static bool pumpScreenDrawn    = false;
 static bool gameOverScreenDrawn = false;
 static bool defibChargePressed = false;
 
+// thermistor value from last blow state check, used to detect drop for breath sensing
+static float prevThermistor = 1023.0f;
+
 // debounce timestamps and states — one per button
 static uint32_t lastStartMs     = 0;  static bool lastStartState    = false;
 static uint32_t lastGameOverMs  = 0;  static bool lastGameOverState = false;
@@ -123,11 +126,11 @@ Event defibState(){
 }
 
 Event blowState() {
-    static int prevThermistor = 510;
     if (!blowScreenDrawn) {
         lcd_showBlowScreen(fsm_getScore());
         audio_play(TRACK_BLOW);
         blowScreenDrawn = true;
+        prevThermistor = 1023.0f;  // reset on entry to ensure we detect a drop from the current state, not a lingering drop from the last blow challenge
     }
 
     SensorData data;
@@ -147,7 +150,10 @@ Event blowState() {
             fsm_addScore();
             return pickNextChallenge(fsm_getState());
         }
+    // update prevThermistor every tick to detect drops, 
+    prevThermistor = data.thermistor;
     }
+
     // fail if charge or shock button pressed during blow challenge
     if (debounceButton(PIN_CHARGE_BTN, &lastChargeMs, &lastChargeState) ||
         debounceButton(PIN_SHOCK_BTN,  &lastShockMs,  &lastShockState)) {
@@ -239,6 +245,8 @@ void states_reset() {
     pumpScreenDrawn     = false;
     gameOverScreenDrawn = false;
     defibChargePressed  = false;
+    // reset challenge picker state
+    prevThermistor      = 1023.0f;  // ← add this
     // reset debounce states
     lastStartMs      = 0;  lastStartState    = false;
     lastGameOverMs   = 0;  lastGameOverState = false;
