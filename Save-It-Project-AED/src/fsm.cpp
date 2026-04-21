@@ -77,7 +77,11 @@ uint32_t getPromptTimeout() {
 uint8_t fsm_getScore()  { return fsm.score; }
 
 void fsm_addScore(){ 
-    if (fsm.score < MAX_SCORE) fsm.score++; // increments the score by 1, up to the maximum score
+    if (fsm.score < MAX_SCORE){
+        fsm.score++; // increments the score by 1, up to the maximum score
+    } else {
+        fsm_dispatch(EV_FAIL);;
+    }
 }
 
 State fsm_getState() { return fsm.current; } // returns the current state of the FSM
