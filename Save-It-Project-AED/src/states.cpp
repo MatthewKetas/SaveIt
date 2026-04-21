@@ -82,14 +82,15 @@ Event defibState(){
             return EV_FAIL;
         }
         // fail if force or breath detected during charge phase of defib challenge
-        SensorData data;
-        if (bt_receive(&data)) {
-            if (data.forceDetected || data.thermistor < BREATH_THRESHOLD) {
-                defibScreenDrawn = false;
-                defibChargePressed = false;
-                return EV_FAIL;
-            }
-        }
+        //TODO: sensing continued input from last state 
+        // SensorData data;
+        // if (bt_receive(&data)) {
+        //     if (data.forceDetected || data.thermistor < BREATH_THRESHOLD) {
+        //         defibScreenDrawn = false;
+        //         defibChargePressed = false;
+        //         return EV_FAIL;
+        //     }
+        // }
     } else {
         if (debounceButton(PIN_SHOCK_BTN, &lastShockMs, &lastShockState)) {
             defibScreenDrawn = false;
