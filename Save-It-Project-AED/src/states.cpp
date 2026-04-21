@@ -16,8 +16,10 @@ static bool pumpScreenDrawn    = false;
 static bool gameOverScreenDrawn = false;
 static bool defibChargePressed = false;
 
-// thermistor value from last blow state check, used to detect drop for breath sensing
+// variables for preventing false positives on breath detection
 static float prevThermistor = 1023.0f; // initialize to max value so any real reading will be lower and register as a drop
+static uint32_t lastBlowMs = 0;
+#define BLOW_COOLDOWN_MS 1750  // 1.75 seconds cooldown after blow
 
 // debounce timestamps and states — one per button
 static uint32_t lastStartMs     = 0;  static bool lastStartState    = false;
@@ -145,15 +147,14 @@ Event blowState() {
         if (prevThermistor < 0.0f) {
             prevThermistor = data.thermistor;  // first reading — set baseline, don't check
         } else if (prevThermistor - data.thermistor > BREATH_DROP_THRESHOLD) {
-            prevThermistor = data.thermistor;
+            prevThermistor = -1.0f;            // reset to sentinel so we don't register multiple drops from one breath
+            lastBlowMs = millis();             // reset blow cooldown timer on successful breath detection
             blowScreenDrawn = false;
             lcd_setEKGState(EKG_SUCCESS);
             audio_play(TRACK_SUCCESS);
             fsm_addScore();
             return pickNextChallenge(fsm_getState());
-        }
-    // update prevThermistor every tick to detect drops, 
-    prevThermistor = data.thermistor;
+        } 
     }
 
     // fail if charge or shock button pressed during blow challenge
@@ -233,7 +234,10 @@ Event pickNextChallenge(State currentState){
             case 2: returnEv = EV_PROMPT_PUMP;  break;
             default: returnEv = EV_PROMPT_DEFIB;  // default, should never enter
         }
-    } while (returnEv == EV_PROMPT_BLOW && currentState == ST_BLOW_IT); // ensure the breath challenge is not repeated twice so thermistor can heat back up for next time
+    } while (
+        (returnEv == EV_PROMPT_BLOW && currentState == ST_BLOW_IT) ||  // ensure the breath challenge is not repeated twice so thermistor can heat back up for next time
+        (returnEv == EV_PROMPT_BLOW && millis() - lastBlowMs < BLOW_COOLDOWN_MS) // ensure the breath challenge is not repeated too quickly so thermistor can heat back up for next time
+    );
     return returnEv;
 }
 
@@ -247,8 +251,11 @@ void states_reset() {
     pumpScreenDrawn     = false;
     gameOverScreenDrawn = false;
     defibChargePressed  = false;
-    // reset challenge picker state
-    prevThermistor      = 1023.0f;  // ← add this
+
+    // reset thermistor variables
+    prevThermistor      = 1023.0f; 
+    lastBlowMs          = 0;
+
     // reset debounce states
     lastStartMs      = 0;  lastStartState    = false;
     lastGameOverMs   = 0;  lastGameOverState = false;
