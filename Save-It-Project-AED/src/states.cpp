@@ -121,6 +121,7 @@ Event defibState(){
 }
 
 Event blowState() {
+    static int prevThermistor = 510;
     if (!blowScreenDrawn) {
         lcd_showBlowScreen(fsm_getScore());
         audio_play(TRACK_BLOW);
@@ -136,6 +137,8 @@ Event blowState() {
         }
         // correct input — breath detected
         if (data.thermistor < BREATH_THRESHOLD) {
+        if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 3 && prevThermistor < BREATH_THRESHOLD)) {
+            prevThermistor = data.thermistor;
             blowScreenDrawn = false;
             lcd_setEKGState(EKG_SUCCESS);
             audio_play(TRACK_SUCCESS);
