@@ -13,6 +13,7 @@
 #define BREATH_THRESHOLD 510.0f  // tune more
 
 // Max score
+//TODO: change this back to 99
 #define MAX_SCORE 10 //99  // maximum score before game is won
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------

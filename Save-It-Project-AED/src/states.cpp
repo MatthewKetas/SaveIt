@@ -220,10 +220,10 @@ Event pickNextChallenge(State currentState){
     Event returnEv;
     do {
         switch ((int)random(3)) {
-            case 0: return EV_PROMPT_DEFIB;
-            case 1: return EV_PROMPT_BLOW;
-            case 2: return EV_PROMPT_PUMP;
-            default: return EV_PROMPT_DEFIB;  // default, should never enter
+            case 0: returnEv = EV_PROMPT_DEFIB;
+            case 1: returnEv = EV_PROMPT_BLOW;
+            case 2: returnEv = EV_PROMPT_PUMP;
+            default: returnEv = EV_PROMPT_DEFIB;  // default, should never enter
         }
     } while (returnEv == EV_PROMPT_BLOW && currentState == ST_BLOW_IT); // ensure the breath challenge is not repeated twice so thermistor can heat back up for next time
     return returnEv;

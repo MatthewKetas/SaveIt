@@ -6,7 +6,7 @@
 
 static Adafruit_ST7789 tft = Adafruit_ST7789(LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN); // hardware SPI instance for ST7789 display
 
-#define EKG_SPEED 5   // pixels shifted per update — tune for scroll speed
+#define EKG_SPEED 4   // pixels shifted per update — tune for scroll speed
 #define EKG_UPDATE_MS 20  // ms between EKG updates — tune for consistency
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
