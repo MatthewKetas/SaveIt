@@ -17,7 +17,7 @@ static bool gameOverScreenDrawn = false;
 static bool defibChargePressed = false;
 
 // thermistor value from last blow state check, used to detect drop for breath sensing
-static float prevThermistor = 1023.0f;
+static float prevThermistor = 1023.0f; // initialize to max value so any real reading will be lower and register as a drop
 
 // debounce timestamps and states — one per button
 static uint32_t lastStartMs     = 0;  static bool lastStartState    = false;
@@ -130,7 +130,7 @@ Event blowState() {
         lcd_showBlowScreen(fsm_getScore());
         audio_play(TRACK_BLOW);
         blowScreenDrawn = true;
-        prevThermistor = 1023.0f;  // reset on entry to ensure we detect a drop from the current state, not a lingering drop from the last blow challenge
+        prevThermistor = -1.0f;  // sentinel - baseline not set yet
     }
 
     SensorData data;
@@ -142,7 +142,9 @@ Event blowState() {
         //     return EV_FAIL;
         // }
         // correct input — breath detected
-        if (prevThermistor - data.thermistor > BREATH_DROP_THRESHOLD) {
+        if (prevThermistor < 0.0f) {
+            prevThermistor = data.thermistor;  // first reading — set baseline, don't check
+        } else if (prevThermistor - data.thermistor > BREATH_DROP_THRESHOLD) {
             prevThermistor = data.thermistor;
             blowScreenDrawn = false;
             lcd_setEKGState(EKG_SUCCESS);
