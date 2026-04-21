@@ -139,7 +139,7 @@ Event blowState() {
         //     return EV_FAIL;
         // }
         // correct input — breath detected
-        if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 3 && prevThermistor < BREATH_THRESHOLD)) {
+        if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 4 && prevThermistor < BREATH_THRESHOLD)) {
             prevThermistor = data.thermistor;
             blowScreenDrawn = false;
             lcd_setEKGState(EKG_SUCCESS);

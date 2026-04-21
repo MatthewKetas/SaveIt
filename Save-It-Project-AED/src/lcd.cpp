@@ -206,7 +206,9 @@ void lcd_showGameOverScreen(uint8_t score) {
     lcd_clear();
     if (score >= MAX_SCORE) {
         lcd_printCentered("YOU WIN!", 3, COLOR_SUCCESS, 10);
-        lcd_printCentered("Perfect Score: 99", 2, COLOR_HIGHLIGHT, 50);
+        char buf[32];
+        snprintf(buf, sizeof(buf), "Perfect Score: %d", MAX_SCORE);
+        lcd_printCentered(buf, 2, COLOR_HIGHLIGHT, 50);
         lcd_printCentered("Press Start to play again", 1, COLOR_SUCCESS, 70);
         lcd_setEKGState(EKG_SUCCESS);  // ← success EKG for win
     } else {
