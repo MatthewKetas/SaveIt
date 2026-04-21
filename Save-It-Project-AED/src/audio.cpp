@@ -25,7 +25,8 @@ void audio_init() {
 void audio_play(uint8_t track) {
     if(audio_isBusy()){
         Serial.println("Unable to play track - audio player is busy.");
-        return;
+        dfPlayer.stop();
+        delay(20);
     }
     dfPlayer.play(track);
 }
