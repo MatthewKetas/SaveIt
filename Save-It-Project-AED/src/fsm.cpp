@@ -3,6 +3,7 @@
 #include "fsm.h"
 #include "states.h"  // forward declares the six state functions
 #include "bluetooth.h"  // needed for bt_connected() check
+#include "gpio.h"  // needed for pad connection checks
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // FSM Variables: private to fsm.cpp, only accessible through fsm_init, fsm_dispatch, fsm_tick
@@ -96,6 +97,12 @@ void fsm_tick() {
         if (!bt_connected()) {
             fsm_dispatch(EV_SYNC);
             Serial.println("BT Disconnected");
+            return;
+        }
+        bool padsOk = (digitalRead(PIN_PAD_LEFT)  == LOW) && (digitalRead(PIN_PAD_RIGHT) == LOW);
+        if (fsm.current != ST_SYNC && !padsOk) {
+            fsm_dispatch(EV_SYNC);
+            Serial.println("Pads Disconnected");
             return;
         }
     }

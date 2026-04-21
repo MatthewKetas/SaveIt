@@ -33,8 +33,8 @@
 #define PIN_START_BTN   32      // start/restart game button — active LOW
 
 // Defib Pads (to allow game start) Pins
-#define PIN_PAD_LEFT    21      // left defib pad reed switch
-#define PIN_PAD_RIGHT   13      // right defib pad reed switch
+#define PIN_PAD_LEFT    21      // left defib pad 
+#define PIN_PAD_RIGHT   13      // right defib pad 
 
 //Debounce delay for buttons (ms)
 #define DEBOUNCE_MS  125
