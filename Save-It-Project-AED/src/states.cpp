@@ -139,7 +139,7 @@ Event blowState() {
         //     return EV_FAIL;
         // }
         // correct input — breath detected
-        if ((data.thermistor < BREATH_THRESHOLD && prevThermistor >= BREATH_THRESHOLD) || (data.thermistor < prevThermistor - 4 && prevThermistor < BREATH_THRESHOLD)) {
+        if (prevThermistor - data.thermistor > BREATH_DROP_THRESHOLD) {
             prevThermistor = data.thermistor;
             blowScreenDrawn = false;
             lcd_setEKGState(EKG_SUCCESS);
@@ -220,9 +220,9 @@ Event pickNextChallenge(State currentState){
     Event returnEv;
     do {
         switch ((int)random(3)) {
-            case 0: returnEv = EV_PROMPT_DEFIB;
-            case 1: returnEv = EV_PROMPT_BLOW;
-            case 2: returnEv = EV_PROMPT_PUMP;
+            case 0: returnEv = EV_PROMPT_DEFIB; break;
+            case 1: returnEv = EV_PROMPT_BLOW;  break;
+            case 2: returnEv = EV_PROMPT_PUMP;  break;
             default: returnEv = EV_PROMPT_DEFIB;  // default, should never enter
         }
     } while (returnEv == EV_PROMPT_BLOW && currentState == ST_BLOW_IT); // ensure the breath challenge is not repeated twice so thermistor can heat back up for next time

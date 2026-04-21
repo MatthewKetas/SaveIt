@@ -10,7 +10,8 @@
 #define SCORE_DIFFICULTY_STEP   100     // ms reduced per point scored
 
 // Breath sensor constant
-#define BREATH_THRESHOLD 510.0f  // tune more
+//#define BREATH_THRESHOLD 510.0f  // tune more - using a drop threshold instead
+#define BREATH_DROP_THRESHOLD 3.0f  // threshold for detecting breath drop
 
 // Max score
 //TODO: change this back to 99
