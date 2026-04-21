@@ -1,9 +1,13 @@
 // lcd.cpp
 #include <Arduino.h>
+#include "fsm.h"
 #include "lcd.h"
 #include "gpio.h"
 
 static Adafruit_ST7789 tft = Adafruit_ST7789(LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN); // hardware SPI instance for ST7789 display
+
+#define EKG_SPEED 5   // pixels shifted per update — tune for scroll speed
+#define EKG_UPDATE_MS 20  // ms between EKG updates — tune for consistency
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // EKG Buffer — stores last SCREEN_W y-values for scrolling effect
@@ -139,8 +143,10 @@ void lcd_setEKGState(EKGState state) {
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // lcd_updateEKG: scrolls EKG left by 1 pixel, called every tick
 void lcd_updateEKG() {
-    // shift buffer left by SPEED pixels per tick
-    #define EKG_SPEED 5  // pixels per tick — increase to scroll faster
+ static uint32_t lastEkgMs = 0;
+    uint32_t now = millis();
+    if (now - lastEkgMs < EKG_UPDATE_MS) return;
+    lastEkgMs = now;
 
     for (int s = 0; s < EKG_SPEED; s++) {
         for (int i = 0; i < SCREEN_W - 1; i++) {
@@ -150,7 +156,6 @@ void lcd_updateEKG() {
         ekgBuf[SCREEN_W - 1] = constrain(newY, EKG_Y, EKG_Y + EKG_H - 1);
     }
 
-    // clear and redraw
     tft.fillRect(0, EKG_Y, SCREEN_W, EKG_H, COLOR_BG);
     for (int i = 0; i < SCREEN_W - 1; i++) {
         int16_t y0 = ekgBuf[i];
@@ -199,18 +204,19 @@ void lcd_showPumpScreen(uint8_t score) {
 
 void lcd_showGameOverScreen(uint8_t score) {
     lcd_clear();
-    if (score >= 99) { // if perfect score, show special message
+    if (score >= MAX_SCORE) {
         lcd_printCentered("YOU WIN!", 3, COLOR_SUCCESS, 10);
         lcd_printCentered("Perfect Score: 99", 2, COLOR_HIGHLIGHT, 50);
-    } else { // otherwise show regular game over with score
+        lcd_printCentered("Press Start to play again", 1, COLOR_SUCCESS, 70);
+        lcd_setEKGState(EKG_SUCCESS);  // ← success EKG for win
+    } else {
         lcd_printCentered("GAME OVER", 3, COLOR_FAIL, 10);
         char scoreStr[16];
         snprintf(scoreStr, sizeof(scoreStr), "Score: %d", score);
         lcd_printCentered(scoreStr, 2, COLOR_TEXT, 50);
+        lcd_printCentered("Press Start to play again", 1, COLOR_TEXT, 70);
+        lcd_setEKGState(EKG_FAIL);    // ← flatline for game over
     }
-    
-    lcd_printCentered("Press Start to play again", 1, COLOR_TEXT, 70);
-    lcd_setEKGState(EKG_FAIL);
 }
 
 void lcd_showSyncStatus(bool btOk, bool padsOk) {
