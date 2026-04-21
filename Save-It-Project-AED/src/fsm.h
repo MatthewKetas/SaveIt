@@ -11,7 +11,7 @@
 
 // Breath sensor constant
 //#define BREATH_THRESHOLD 510.0f  // tune more - using a drop threshold instead
-#define BREATH_DROP_THRESHOLD 1.5f  // threshold for detecting breath drop
+#define BREATH_DROP_THRESHOLD 1.0f  // threshold for detecting breath drop
 
 // Max score
 //TODO: change this back to 99
