@@ -1,7 +1,5 @@
-# SaveIt
-The code for the SaveIt!
-
-# Watch the Demo Here: https://drive.google.com/drive/u/1/home
+# SaveIt 
+## Watch the demo here: https://drive.google.com/drive/u/1/home
 
 # Authors:
 1. Matthew Ketas
